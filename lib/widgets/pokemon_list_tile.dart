@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_riverpod/models/pokemon.dart';
 import 'package:pokemon_riverpod/providers/pokemon_data_provider.dart';
+import 'package:pokemon_riverpod/widgets/pokemon_stats_cards.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class PokemonListTile extends ConsumerWidget {
@@ -35,32 +36,44 @@ class PokemonListTile extends ConsumerWidget {
   Widget _tile(BuildContext context, bool isLoadding, Pokemon? pokemon) {
     return Skeletonizer(
       enabled: isLoadding,
-      child: ListTile(
-        leading:
+      child: GestureDetector(
+          onTap: () {
+          if (!isLoadding) {
+            showDialog(
+              context: context,
+              builder: (_) {
+                return PokemonStatsCards(pokemonUrl: pokemonUrl);
+              },
+            );
+          }
+        },
+        child: ListTile(
+          leading:
+              pokemon != null
+                  ? CircleAvatar(
+                    backgroundImage: NetworkImage(pokemon.sprites!.frontDefault!),
+                  )
+                  : CircleAvatar(),
+          title: Text(
             pokemon != null
-                ? CircleAvatar(
-                  backgroundImage: NetworkImage(pokemon.sprites!.frontDefault!),
-                )
-                : CircleAvatar(),
-        title: Text(
-          pokemon != null
-              ? pokemon.name!.toUpperCase()
-              : "Currently loading name for Pokemon.",
-        ),
-        subtitle: Text("Has ${pokemon?.moves?.length.toString() ?? 0} movies"),
-        trailing: IconButton(
-          onPressed: () {
-            if (_favouritePokemons.contains(pokemonUrl)) {
-              _favoritePokemonsProvider.removeFavouritePokemon(pokemonUrl);
-            } else {
-              _favoritePokemonsProvider.addFavouritePokemon(pokemonUrl);
-            }
-          },
-          icon: Icon(
-            _favouritePokemons.contains(pokemonUrl)
-                ? Icons.favorite
-                : Icons.favorite_border,
-                color: Colors.red,
+                ? pokemon.name!.toUpperCase()
+                : "Currently loading name for Pokemon.",
+          ),
+          subtitle: Text("Has ${pokemon?.moves?.length.toString() ?? 0} movies"),
+          trailing: IconButton(
+            onPressed: () {
+              if (_favouritePokemons.contains(pokemonUrl)) {
+                _favoritePokemonsProvider.removeFavouritePokemon(pokemonUrl);
+              } else {
+                _favoritePokemonsProvider.addFavouritePokemon(pokemonUrl);
+              }
+            },
+            icon: Icon(
+              _favouritePokemons.contains(pokemonUrl)
+                  ? Icons.favorite
+                  : Icons.favorite_border,
+                  color: Colors.red,
+            ),
           ),
         ),
       ),
